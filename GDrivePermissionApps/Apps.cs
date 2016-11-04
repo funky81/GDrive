@@ -3,11 +3,22 @@ using Google.Apis.Drive.v3;
 using Google.Apis.Services;
 using Google.Apis.Util.Store;
 using System;
+using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Threading;
 
 namespace FutureTech.Google.Drive
 {
+    public class Share
+    {
+        public string FileId { get; set; }
+        public string FileName { get; set; }
+        public string Role { get; set; }
+        public string Email { get; set; }
+        public string UserName { get; set; }
+        public string Type { get; set; }
+    }
     internal class Apps
     {
         static string[] Scopes = { DriveService.Scope.DriveReadonly };
@@ -15,8 +26,10 @@ namespace FutureTech.Google.Drive
         public Apps()
         {
         }
-        public void Iterate()
+        public Dictionary<string, List<Share>> GetList()
         {
+            var list = new Dictionary<string, List<Share>>();
+
             UserCredential credential;
 
             using (var stream =
@@ -48,6 +61,7 @@ namespace FutureTech.Google.Drive
             var result = request.Execute();
             do
             {
+                //request.Q = "not 'funky81.milis@gmail.com' in readers";
                 result = request.Execute();
                 foreach (var file in result.Files)
                 {
@@ -56,7 +70,7 @@ namespace FutureTech.Google.Drive
                         var filePermission = service.Permissions.List(file.Id);
                         filePermission.Fields = "kind,permissions";
                         var permissions = filePermission.Execute().Permissions;
-                        Console.WriteLine(file.Name);
+                        //Console.WriteLine(file.Name);
                         foreach (var permission in permissions)
                         {
                             if (permission.Role != "owner")
@@ -64,10 +78,25 @@ namespace FutureTech.Google.Drive
 
                                 if (permission.DisplayName != null)
                                 {
-                                    Console.Write("-");
-                                    Console.Write(permission.DisplayName);
+                                    var share = new Share()
+                                    {
+                                        Email = permission.EmailAddress,
+                                        FileId = file.Id,
+                                        FileName = file.Name,
+                                        Role = permission.Role,
+                                        UserName = permission.DisplayName,
+                                        Type = file.MimeType
+                                    };
+                                    if (!list.ContainsKey(file.Id))
+                                    {
+                                        list.Add(file.Id, new List<Share>());
+                                    }
+                                    var value = list.FirstOrDefault(x => x.Key == file.Id);
+                                    value.Value.Add(share);
+                                    //Console.Write("-");
+                                    //Console.Write(permission.DisplayName);
                                 }
-                                Console.WriteLine();
+                                //Console.WriteLine();
                             }
 
                         }
@@ -75,7 +104,7 @@ namespace FutureTech.Google.Drive
                     }
                     catch (Exception ex)
                     {
-                        Console.WriteLine(ex.Message);
+                        //Console.WriteLine(ex.Message);
                     }
                     //if (file.Shared.HasValue && file.Shared.Value)
                     //    Console.WriteLine(file.SharingUser.DisplayName);
@@ -83,8 +112,24 @@ namespace FutureTech.Google.Drive
                 request.PageToken = result.NextPageToken;
             } while (result.NextPageToken != null);
 
-            Console.Read();
+            //Console.Read();
+            return list;
         }
-
+        internal void Iterate()
+        {
+            var list = GetList();
+            foreach (var key in list.Keys)
+            {
+                foreach (var value in list.Where(x => x.Key == key))
+                {
+                    var shareList = value.Value;
+                    foreach (var listX in shareList.ToList())
+                    {
+                        Console.WriteLine(listX.FileName + "-" + listX.Type + "-" + listX.Role + "-" + listX.UserName + "-" + listX.Email);
+                    }
+                }
+            }
+            Console.ReadLine();
+        }
     }
 }
