@@ -11,7 +11,7 @@ namespace FutureTech.Google.Drive
     internal class Apps
     {
         static string[] Scopes = { DriveService.Scope.DriveReadonly };
-        static string ApplicationName = "Drive API .NET Quickstart";
+        static string ApplicationName = "GDriveApps.Sharing";
         public Apps()
         {
         }
