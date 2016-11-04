@@ -7,8 +7,8 @@
     <ProjectGuid>{87B6B1A7-C949-4D18-92CF-F5929AB06B15}</ProjectGuid>
     <OutputType>Exe</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>GDrivePermissionApps</RootNamespace>
-    <AssemblyName>GDrivePermissionApps</AssemblyName>
+    <RootNamespace>FutureTech.Google.Drive</RootNamespace>
+    <AssemblyName>GDrive.PermissionApps</AssemblyName>
     <TargetFrameworkVersion>v4.6.2</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>
@@ -83,6 +83,7 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Apps.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
